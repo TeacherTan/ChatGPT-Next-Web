@@ -190,13 +190,15 @@ export function SideBar(props: { className?: string }) {
           }}
           shadow
         />
-        {/* <IconButton
+        <IconButton
           icon={<PluginIcon />}
-          text={"FG List"}
+          text={"Generate(人设生成)"}
           className={styles["sidebar-bar-button"]}
-          // onClick={() => switchChatList()}
+          onClick={() => {
+            navigate(Path.Generate, { state: { fromHome: true } });
+          }}
           shadow
-        /> */}
+        />
       </div>
 
       <div

@@ -43,6 +43,10 @@ const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo />,
 });
 
+const Generate = dynamic(async () => (await import("./generate")).Generate, {
+  loading: () => <Loading noLogo />,
+});
+
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
   loading: () => <Loading noLogo />,
 });
@@ -164,6 +168,7 @@ function Screen() {
               <Route path={Path.FastGPT} element={<FastGPT />} />
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
+              <Route path={Path.Generate} element={<Generate />} />
               <Route path={Path.FastGPT} element={<FastGPT />} />
             </Routes>
           </div>
