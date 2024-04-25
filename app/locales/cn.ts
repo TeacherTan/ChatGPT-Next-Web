@@ -362,6 +362,10 @@ const cn = {
       SubTitle: "值越大，越有可能降低重复字词",
     },
   },
+  Generate: {
+    Title: "生成角色",
+    SubTitle: "根据描述生成角色",
+  },
   Store: {
     DefaultTopic: "Mari",
     BotHello: "有什么可以帮你的吗",

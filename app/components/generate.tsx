@@ -665,10 +665,10 @@ export function Generate() {
       <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
-            {Locale.Settings.Title}
+            {Locale.Generate.Title}
           </div>
           <div className="window-header-sub-title">
-            {Locale.Settings.SubTitle}
+            {Locale.Generate.SubTitle}
           </div>
         </div>
         <div className="window-actions">
