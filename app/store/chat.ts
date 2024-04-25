@@ -1076,6 +1076,162 @@ export const useFastGPTChatStore = createPersistStore(
         });
       },
 
+      async agentGenerate(
+        content: string,
+        attachImages?: string[],
+        oneApiNum?: number,
+      ) {
+        const session = get().currentSession();
+        const modelConfig = session.mask.modelConfig;
+        const fastgptVar = session.mask.fastgptVar;
+        const userContent = fillTemplateWith(content, modelConfig);
+        console.log("[User Input] after template: ", userContent);
+
+        let mContent: string | MultimodalContent[] = userContent;
+
+        if (attachImages && attachImages.length > 0) {
+          mContent = [
+            {
+              type: "text",
+              text: userContent,
+            },
+          ];
+          mContent = mContent.concat(
+            attachImages.map((url) => {
+              return {
+                type: "image_url",
+                image_url: {
+                  url: url,
+                },
+              };
+            }),
+          );
+        }
+        let userMessage: ChatMessage = createMessage({
+          role: "user",
+          content: mContent,
+        });
+
+        const botMessage: ChatMessage = createMessage({
+          role: "assistant",
+          streaming: true,
+          model: modelConfig.model,
+        });
+
+        // get recent messages(except mask)
+        const memoryMessages = get().getMessagesWithMemory(oneApiNum);
+
+        //获取mask中的上下文信息
+        //const 换 let，可能解决了深拷贝问题
+        let inContextMessages = get().getInContextPrompts();
+        //对面具中的变量进行替换
+        const recentMessages = fillContextTemplate(
+          inContextMessages,
+          fastgptVar,
+        );
+        let sendMessages = [] as ChatMessage[];
+        // console.log("[RecentMessages]: ", recentMessages);
+
+        sendMessages = recentMessages.concat(memoryMessages);
+        if (oneApiNum == 0) {
+          sendMessages = sendMessages.concat(userMessage);
+        }
+        // if (
+        //   session.messages.some(
+        //     (msg) => msg.role === "user" && msg !== session.messages[0],
+        //   )
+        // ) {
+        //   const emptyMessages = [] as ChatMessage[];
+        //   sendMessages = emptyMessages.concat(userMessage);
+        // } else {
+        //   sendMessages = recentMessages.concat(userMessage);
+        // }
+
+        // const sendMessages = emptyMessages.concat(userMessage);
+        // sendMessages = sendMessages.concat(memoryMessages);
+        const messageIndex = get().currentSession().messages.length + 1;
+
+        // save user's and bot's message
+        get().updateCurrentSession((session) => {
+          const savedUserMessage = {
+            ...userMessage,
+            content: mContent,
+          };
+          if (oneApiNum == 0) {
+            session.messages = session.messages.concat([
+              savedUserMessage,
+              botMessage,
+            ]);
+          } else {
+            session.messages = session.messages.concat([botMessage]);
+          }
+        });
+
+        var api: ClientApi;
+        api = new ClientApi(ModelProvider.FastGPT);
+
+        // else if (modelConfig.model.startsWith("gemini")) {
+        //   api = new ClientApi(ModelProvider.GeminiPro);
+        // } else {
+        //   api = new ClientApi(ModelProvider.GPT);
+        // }
+        // make request
+        api.llm.chat({
+          messages: sendMessages,
+          config: {
+            ...modelConfig,
+            stream: session.mask.fastgptConfig.stream,
+            variables: session.mask.fastgptVar,
+            // model: oneApiModel,
+          },
+          onUpdate(message) {
+            botMessage.streaming = true;
+            if (message) {
+              botMessage.content = message;
+            }
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+          },
+          onFinish(message) {
+            botMessage.streaming = false;
+            if (message) {
+              botMessage.content = message;
+              get().onNewMessage(botMessage);
+            }
+            ChatControllerPool.remove(session.id, botMessage.id);
+          },
+          onError(error) {
+            const isAborted = error.message.includes("aborted");
+            botMessage.content +=
+              "\n\n" +
+              prettyObject({
+                error: true,
+                message: error.message,
+              });
+            botMessage.streaming = false;
+            userMessage.isError = !isAborted;
+            botMessage.isError = !isAborted;
+            get().updateCurrentSession((session) => {
+              session.messages = session.messages.concat();
+            });
+            ChatControllerPool.remove(
+              session.id,
+              botMessage.id ?? messageIndex,
+            );
+
+            console.error("[Chat] failed ", error);
+          },
+          onController(controller) {
+            // collect controller for stop/retry
+            ChatControllerPool.addController(
+              session.id,
+              botMessage.id ?? messageIndex,
+              controller,
+            );
+          },
+        });
+      },
       getMemoryPrompt() {
         const session = get().currentSession();
 

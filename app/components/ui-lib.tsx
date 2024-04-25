@@ -542,6 +542,7 @@ export function InputGenText(props: {
   text: string;
   subTitle?: string;
   update: (text: string) => void;
+  onclick?: () => void;
   className?: string;
 }) {
   const [focusingInput, setFocusingInput] = useState(false);
@@ -569,6 +570,7 @@ export function InputGenText(props: {
               text="Regenerate"
               // className={props.className}
               className={styles["input-gen-text-button"]}
+              onClick={props.onclick}
             />
           </div>
           {props.subTitle && (

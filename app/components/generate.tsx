@@ -44,6 +44,7 @@ import {
   useAppConfig,
   TagKey,
   VisibilityKey,
+  useFastGPTChatStore,
 } from "../store";
 
 import Locale, {
@@ -564,6 +565,11 @@ function SyncItems() {
 
 export function Generate() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const chatStore = useFastGPTChatStore();
+  const doSubmit = (userInput: string) => {
+    chatStore.agentGenerate(userInput).then(() => setIsLoading(false));
+  };
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const config = useAppConfig();
   const updateConfig = config.update;
@@ -692,6 +698,7 @@ export function Generate() {
             update={(value) => {
               setCharName(value);
             }}
+            onclick={() => doSubmit(charName)}
           />
           <InputGenText
             title="2、tagline"
