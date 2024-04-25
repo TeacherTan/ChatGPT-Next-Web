@@ -666,6 +666,8 @@ export function Generate() {
   const [charName, setCharName] = useState("");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
+  const [greet, setGreet] = useState("");
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -698,7 +700,7 @@ export function Generate() {
             update={(value) => {
               setCharName(value);
             }}
-            onclick={() => doSubmit(charName)}
+            onclick={() => doSubmit(description)}
           />
           <InputGenText
             title="2、tagline"
@@ -707,6 +709,7 @@ export function Generate() {
             update={(value) => {
               setTagline(value);
             }}
+            onclick={() => doSubmit(description)}
           />
           <InputGenText
             title="3、Character description"
@@ -715,6 +718,7 @@ export function Generate() {
             update={(value) => {
               setDescription(value);
             }}
+            onclick={() => doSubmit(description)}
           />
           <InputGenText
             title="4、Greet"
@@ -723,6 +727,7 @@ export function Generate() {
             update={(value) => {
               setTagline(value);
             }}
+            onclick={() => doSubmit(description)}
           />
         </List>
 

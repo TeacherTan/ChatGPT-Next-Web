@@ -176,6 +176,45 @@ function fillTemplateWith(input: string, modelConfig: ModelConfig) {
   return output;
 }
 
+function fillAgentPrompt(input: string, modelConfig: ModelConfig) {
+  const cutoff =
+    KnowledgeCutOffDate[modelConfig.model] ?? KnowledgeCutOffDate.default;
+  // Find the model in the DEFAULT_MODELS array that matches the modelConfig.model
+  const modelInfo = DEFAULT_MODELS.find((m) => m.name === modelConfig.model);
+
+  var serviceProvider = "OpenAI";
+  if (modelInfo) {
+    // TODO: auto detect the providerName from the modelConfig.model
+
+    // Directly use the providerName from the modelInfo
+    serviceProvider = modelInfo.provider.providerName;
+  }
+
+  const vars = {
+    ServiceProvider: serviceProvider,
+    cutoff,
+    model: modelConfig.model,
+    time: new Date().toLocaleString(),
+    lang: getLang(),
+    input: input,
+  };
+
+  let output = modelConfig.template ?? DEFAULT_INPUT_TEMPLATE;
+
+  // must contains {{input}}
+  const inputVar = "{{input}}";
+  if (!output.includes(inputVar)) {
+    output += "\n" + inputVar;
+  }
+
+  Object.entries(vars).forEach(([name, value]) => {
+    const regex = new RegExp(`{{${name}}}`, "g");
+    output = output.replace(regex, value.toString()); // Ensure value is a string
+  });
+
+  return output;
+}
+
 function fillContextTemplate(
   input: ChatMessage[],
   fastgptVar: Record<string, any>,
@@ -1084,7 +1123,9 @@ export const useFastGPTChatStore = createPersistStore(
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
         const fastgptVar = session.mask.fastgptVar;
-        const userContent = fillTemplateWith(content, modelConfig);
+
+        // use new function to fill the template
+        const userContent = fillAgentPrompt(content, modelConfig);
         console.log("[User Input] after template: ", userContent);
 
         let mContent: string | MultimodalContent[] = userContent;
@@ -1118,31 +1159,20 @@ export const useFastGPTChatStore = createPersistStore(
           model: modelConfig.model,
         });
 
-        // get recent messages(except mask)
-        const memoryMessages = get().getMessagesWithMemory(oneApiNum);
-
-        //获取mask中的上下文信息
-        //const 换 let，可能解决了深拷贝问题
-        let inContextMessages = get().getInContextPrompts();
-        //对面具中的变量进行替换
-        const recentMessages = fillContextTemplate(
-          inContextMessages,
-          fastgptVar,
-        );
         let sendMessages = [] as ChatMessage[];
         // console.log("[RecentMessages]: ", recentMessages);
 
-        sendMessages = recentMessages.concat(memoryMessages);
-        if (oneApiNum == 0) {
-          sendMessages = sendMessages.concat(userMessage);
-        }
+        // sendMessages = recentMessages.concat(memoryMessages);
+        // if (oneApiNum == 0) {
+        //   sendMessages = sendMessages.concat(userMessage);
+        // }
         // if (
         //   session.messages.some(
         //     (msg) => msg.role === "user" && msg !== session.messages[0],
         //   )
         // ) {
-        //   const emptyMessages = [] as ChatMessage[];
-        //   sendMessages = emptyMessages.concat(userMessage);
+        const emptyMessages = [] as ChatMessage[];
+        sendMessages = emptyMessages.concat(userMessage);
         // } else {
         //   sendMessages = recentMessages.concat(userMessage);
         // }
@@ -1152,29 +1182,24 @@ export const useFastGPTChatStore = createPersistStore(
         const messageIndex = get().currentSession().messages.length + 1;
 
         // save user's and bot's message
-        get().updateCurrentSession((session) => {
-          const savedUserMessage = {
-            ...userMessage,
-            content: mContent,
-          };
-          if (oneApiNum == 0) {
-            session.messages = session.messages.concat([
-              savedUserMessage,
-              botMessage,
-            ]);
-          } else {
-            session.messages = session.messages.concat([botMessage]);
-          }
-        });
+        // get().updateCurrentSession((session) => {
+        //   const savedUserMessage = {
+        //     ...userMessage,
+        //     content: mContent,
+        //   };
+        //   if (oneApiNum == 0) {
+        //     session.messages = session.messages.concat([
+        //       savedUserMessage,
+        //       botMessage,
+        //     ]);
+        //   } else {
+        //     session.messages = session.messages.concat([botMessage]);
+        //   }
+        // });
 
         var api: ClientApi;
         api = new ClientApi(ModelProvider.FastGPT);
 
-        // else if (modelConfig.model.startsWith("gemini")) {
-        //   api = new ClientApi(ModelProvider.GeminiPro);
-        // } else {
-        //   api = new ClientApi(ModelProvider.GPT);
-        // }
         // make request
         api.llm.chat({
           messages: sendMessages,
