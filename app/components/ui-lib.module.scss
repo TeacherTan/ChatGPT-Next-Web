@@ -359,3 +359,40 @@
   //   margin-left: 10px;
   // }
 }
+
+.input-gen-text {
+  // display: flex;
+  // justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  max-width: 100%;
+  border-bottom: var(--border-in-light);
+  padding: 10px 20px;
+  animation: slide-in ease 0.6s;
+
+  .list-header {
+    display: flex;
+    align-items: center;
+
+    .list-item-title {
+      font-size: 14px;
+      font-weight: bolder;
+    }
+
+    .list-item-sub-title {
+      font-size: 12px;
+      font-weight: normal;
+    }
+  }
+
+  .input-text-content {
+    flex: 1;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: left;
+  }
+
+  // .context-delete-button {
+  //   margin-left: 10px;
+  // }
+}
