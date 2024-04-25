@@ -366,19 +366,35 @@
   align-items: center;
   min-height: 40px;
   max-width: 100%;
-  border-bottom: var(--border-in-light);
-  padding: 10px 20px;
+  // border-bottom: var(--border-in-light);
+  padding: 5px 10px;
   animation: slide-in ease 0.6s;
 
   .list-header {
-    display: flex;
+    // display: flex;
     align-items: center;
+    padding: 5px 0;
 
     .list-item-title {
+      display: flex;
       font-size: 14px;
       font-weight: bolder;
-    }
+      flex-wrap: wrap;
+      align-items: center;
 
+      .input-gen-text-title {
+        margin-right: 10px;
+        flex: 1;
+      }
+          
+      .input-gen-text-button {
+        flex: 1;
+        background-color: #159BD5;
+        color: white;
+        max-width: 100px;
+        font-size: 10px;
+      }
+    }
     .list-item-sub-title {
       font-size: 12px;
       font-weight: normal;

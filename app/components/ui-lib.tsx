@@ -542,6 +542,7 @@ export function InputGenText(props: {
   text: string;
   subTitle?: string;
   update: (text: string) => void;
+  className?: string;
 }) {
   const [focusingInput, setFocusingInput] = useState(false);
   const textareas = document.querySelectorAll("textarea");
@@ -558,13 +559,23 @@ export function InputGenText(props: {
         // </>
         <div className={styles["list-header"]}>
           <div className={styles["list-item-title"]}>
-            <div>{props.title}</div>
-            {props.subTitle && (
-              <div className={styles["list-item-sub-title"]}>
-                {props.subTitle}
+            <div>
+              <div className={styles["input-gen-text-title"]}>
+                {props.title}
               </div>
-            )}
+            </div>
+            <IconButton
+              bordered
+              text="Regenerate"
+              // className={props.className}
+              className={styles["input-gen-text-button"]}
+            />
           </div>
+          {props.subTitle && (
+            <div className={styles["list-item-sub-title"]}>
+              {props.subTitle}
+            </div>
+          )}
         </div>
       )}
       <Input

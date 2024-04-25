@@ -20,6 +20,17 @@ export enum SubmitKey {
   MetaEnter = "Meta + Enter",
 }
 
+export enum TagKey {
+  Tag1 = "tag1",
+  Tag2 = "tag2",
+  Tag3 = "tag3",
+}
+
+export enum VisibilityKey {
+  Public = "pubilc",
+  Link = "link is visible",
+}
+
 export enum Theme {
   Auto = "auto",
   Dark = "dark",
@@ -30,6 +41,8 @@ export const DEFAULT_CONFIG = {
   lastUpdate: Date.now(), // timestamp, to merge state
 
   submitKey: SubmitKey.Enter,
+  tagKey: TagKey.Tag1,
+  visibilityKey: VisibilityKey.Public,
   avatar: "1f603",
   fontSize: 14,
   theme: Theme.Auto as Theme,

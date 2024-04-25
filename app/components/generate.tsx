@@ -42,6 +42,8 @@ import {
   useUpdateStore,
   useAccessStore,
   useAppConfig,
+  TagKey,
+  VisibilityKey,
 } from "../store";
 
 import Locale, {
@@ -655,7 +657,9 @@ export function Generate() {
   const clientConfig = useMemo(() => getClientConfig(), []);
   const showAccessCode = enabledAccessControl && !clientConfig?.isApp;
 
-  const [var1, setVar1] = useState("test");
+  const [charName, setCharName] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [description, setDescription] = useState("");
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -680,15 +684,130 @@ export function Generate() {
         </div>
       </div>
       <div className={styles["settings"]}>
-        <InputGenText
-          title={"scenario"}
-          text={var1}
-          update={(value) => {
-            setVar1(value);
-          }}
-        />
+        <List>
+          <InputGenText
+            title="1、Character Name"
+            subTitle="The name can include first and last names."
+            text={charName}
+            update={(value) => {
+              setCharName(value);
+            }}
+          />
+          <InputGenText
+            title="2、tagline"
+            subTitle="Add a short tagline of your Character"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+          <InputGenText
+            title="3、Character description"
+            subTitle="In a few sentences, describe your agent’s personality."
+            text={description}
+            update={(value) => {
+              setDescription(value);
+            }}
+          />
+          <InputGenText
+            title="4、Greet"
+            subTitle="What will they say to start a conversation."
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+        </List>
 
-        <DangerItems />
+        <List>
+          <InputGenText
+            title="5、Image"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+          <InputGenText
+            title="6、Photo pictures"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+        </List>
+        <List>
+          <ListItem title="7、Tags">
+            <Select
+              value={config.tagKey}
+              onChange={(e) => {
+                updateConfig(
+                  (config) => (config.tagKey = e.target.value as any as TagKey),
+                );
+              }}
+            >
+              {Object.values(TagKey).map((v) => (
+                <option value={v} key={v}>
+                  {v}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+          <ListItem title="8、Visibility">
+            <Select
+              value={config.visibilityKey}
+              onChange={(e) => {
+                updateConfig(
+                  (config) =>
+                    (config.visibilityKey = e.target
+                      .value as any as VisibilityKey),
+                );
+              }}
+            >
+              {Object.values(VisibilityKey).map((v) => (
+                <option value={v} key={v}>
+                  {v}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+          {/* <InputGenText
+            title="7、Tags"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          /> */}
+          {/* <InputGenText
+            title="8、Visibility"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          /> */}
+          <InputGenText
+            title="9、Creator"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+          <InputGenText
+            title="10、Scenario"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+          <InputGenText
+            title="11、Example of chat"
+            text={tagline}
+            update={(value) => {
+              setTagline(value);
+            }}
+          />
+        </List>
+
+        {/* <DangerItems /> */}
       </div>
     </ErrorBoundary>
   );
